@@ -1,5 +1,7 @@
 # Stardew Bank 💲
 
+![stardew bank](https://github.com/user-attachments/assets/2af18f77-9edf-4eb1-a666-e8b508cbac47)
+
 ## Descrição do projeto 
 
 
@@ -8,3 +10,4 @@
 - A inspiração desse projeto é baseada no jogo indie conhecido como Stardew Valley, onde a premissa é de um fazendeiro em um pequena vila que se relaciona com o dinheiro somente por moedas. Nesse cenário o Stardew Bank ajudaria comunidades ou vilas como as do jogo a ter uma relação mais fácil com o dinheiro, de forma digital.
 
 ## Serviços Fornecidos
+
