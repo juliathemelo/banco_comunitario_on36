@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "julinha",
+    "age": 18,
+    "accounts": [
+      1
+    ]
+  },
+  {
+    "id": 2,
+    "name": "juliao",
+    "age": 19,
+    "accounts": []
+  }
+]
