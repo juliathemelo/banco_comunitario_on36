@@ -1,46 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { Customer } from './customer.model';
-import * as path from 'path';
-import * as fs from 'fs';
+import { Customer } from './model/customer.model';
+import { CustomersAdapter } from './adapter/customers.adapter';
+import { CustomerFactory } from './factory/customers.factory';
 
 
 @Injectable()
 export class CustomersService {
-    private readonly filePath = path.resolve('./src/customers/customers.json');
 
-    private readCustomers(): Customer[] {
-        const data = fs.readFileSync(this.filePath, 'utf8');
-        return JSON.parse(data) as Customer[]
-    }
-
-    private writeCustomers(customer: Customer[]): void {
-        fs.writeFileSync(this.filePath, JSON.stringify(customer, null, 2), 'utf8')
-    }
+    private readonly customersAdapter = new CustomersAdapter();
 
     //Criação cliente
     createCustomer(name: string, age: number): Customer {
-        const customers = this.readCustomers();
 
-        const newCustomer = {
-            id: customers.length > 0 ? customers[customers.length - 1].id + 1 : 1,
-            name,
-            age,
-            accounts: []
-        }
+        const customers = this.customersAdapter.readCustomers();
+        const newId = customers.length > 0 ? customers[customers.length - 1].id + 1 : 1;
+
+        const newCustomer = CustomerFactory.createCustomer(newId, name, age, []);
+
         customers.push(newCustomer);
-        this.writeCustomers(customers);
+        this.customersAdapter.writeCustomers(customers);
+
         return newCustomer;
     }
 
-    //Consultar Clientes no geral
     findAllCustomers(): Customer[] {
-        const customers = this.readCustomers();
+        const customers = this.customersAdapter.readCustomers();
         return customers;
     }
 
-    //Função de verificação, se o cliente existe
     customerExists(id: number): boolean {
-        const customers = this.readCustomers();
+        const customers = this.customersAdapter.readCustomers();
         return customers.some(customer => customer.id === id);
     }
 }

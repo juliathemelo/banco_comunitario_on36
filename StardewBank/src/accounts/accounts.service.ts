@@ -1,120 +1,83 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Account } from './account.model';
-import { SavingAccount } from './savingAccount.model';
-import { AccountType } from './account.model';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Account } from './model/account.model';
+import { SavingAccount } from './model/savingAccount.model';
+import { AccountType } from './enums/accounts.type';
 import * as path from 'path';
 import * as fs from 'fs';
 import { CustomersService } from '../customers/customers.service';
-import { CurrentAccount } from './currentAccount.model';
+import { ManagersService } from 'src/managers/managers.service';
+import { CurrentAccount } from './model/currentAccount.model';
+import { AccountsAdapter } from './adapter/accounts.adapter';
+import { AccountFactory } from './factory/accounts.factory';
 
 @Injectable()
 export class AccountsService {
-    constructor(private readonly customersService: CustomersService) {}
 
-    public readonly filePath = path.resolve('./src/accounts/accounts.json');
+    private accountAdapter: AccountsAdapter;
 
-    public readAccounts(): Account[] {
-        const data = fs.readFileSync(this.filePath, 'utf8');
-        return JSON.parse(data) as Account[];
+    constructor(private readonly customersService: CustomersService) {
+        this.accountAdapter = new AccountsAdapter();
     }
 
-    public writeAccounts(accounts: Account[]): void {
-        fs.writeFileSync(this.filePath, JSON.stringify(accounts, null, 2), 'utf8')
+    private getNextId(accounts: Account[]): number {
+        return accounts.reduce((maxId, account) => Math.max(maxId, account.id), 0) + 1;
     }
 
-    // Propriedades savings account
-    private readSavingAccounts(): SavingAccount[] {
-        const data = fs.readFileSync(this.filePath, 'utf8');
-        return JSON.parse(data) as SavingAccount[];
-    }
-
-    private writeSavingAccounts(accounts: SavingAccount[]): void {
-        fs.writeFileSync(this.filePath, JSON.stringify(accounts, null, 2), 'utf8');
-    }
-
-    // Propriedades current account
-    private readCurrentAccounts(): CurrentAccount[] {
-        const data = fs.readFileSync(this.filePath, 'utf8');
-        return JSON.parse(data) as CurrentAccount[];
-    }
-
-    private writeCurrentAccounts(accounts: CurrentAccount[]): void {
-        fs.writeFileSync(this.filePath, JSON.stringify(accounts, null, 2), 'utf8');
+    //Consultar Clientes no geral
+    findAllAccounts(): Account[] {
+        const accounts = this.accountAdapter.readAccounts();
+        return accounts;
     }
 
     //Criação conta
-    createSavingAccount(idClient: number, idManager: number, balance: number, interest: number): SavingAccount {
-        const accounts = this.readSavingAccounts();
+    createAccount(idClient: number, idManager: number, balance: number, type: AccountType, specificProperty: number): SavingAccount | CurrentAccount {
+        const accounts = this.accountAdapter.readAccounts();
+
+        let newAccount: SavingAccount | CurrentAccount;
+
 
         if(this.customersService.customerExists(Number(idClient))) {
-            const newAccount = new SavingAccount(
-                accounts.length > 0 ? accounts[accounts.length - 1].id + 1 : 1,
-                idClient,
-                idManager,
-                balance,
-                interest
-            );
+            const newAccountId = this.getNextId(accounts);
+
+            if (type === AccountType.SAVING) {
+                newAccount = AccountFactory.createAccount(AccountType.SAVING, newAccountId, idClient, idManager, balance, specificProperty) as SavingAccount;
+            } else if (type === AccountType.CURRENT) {
+                newAccount = AccountFactory.createAccount(AccountType.CURRENT, newAccountId, idClient, idManager, balance, specificProperty) as CurrentAccount;
+            }
+
             accounts.push(newAccount);
-            this.writeSavingAccounts(accounts);
-            return newAccount
+            this.accountAdapter.writeAccounts(accounts);
         } else {
             throw new NotFoundException(`Cliente com o ${idClient} não existe`);
         }
+
+        return newAccount
     }
 
-    createCurrentAccount(idClient: number, idManager: number, balance: number, limit: number): CurrentAccount {
-        const accounts = this.readCurrentAccounts();
-
-        if(this.customersService.customerExists(Number(idClient))) {
-            const newAccount = new CurrentAccount(
-                accounts.length > 0 ? accounts[accounts.length - 1].id + 1 : 1,
-                idClient,
-                idManager,
-                balance,
-                limit
-            );
-            accounts.push(newAccount);
-            this.writeCurrentAccounts(accounts);
-            return newAccount
-        } else {
-            throw new NotFoundException(`Cliente com o ${idClient} não existe`);
-        }
-    }
-
-    updateAccountType(id: number, newType: AccountType, specificProperty: number): SavingAccount | CurrentAccount {
-        const accounts = this.readAccounts();
+    //atualização tipo de conta
+    updateAccount(id: number, newType: AccountType, balance: number,specificProperty: number): SavingAccount | CurrentAccount {
+        const accounts = this.accountAdapter.readAccounts();
         const accountIndex = accounts.findIndex(account => account.id === Number(id));
 
         const oldAccount = accounts[accountIndex];
         let newAccount: SavingAccount | CurrentAccount;
 
         if (newType === AccountType.SAVING) {
-            newAccount = new SavingAccount(oldAccount.id, oldAccount.idClient, oldAccount.idManager, oldAccount.balance, specificProperty);
+            newAccount = AccountFactory.createAccount(AccountType.SAVING, oldAccount.id, oldAccount.idClient, oldAccount.idManager, balance, specificProperty) as SavingAccount;
         } else if (newType === AccountType.CURRENT) {
-            newAccount = new CurrentAccount(oldAccount.id, oldAccount.idClient, oldAccount.idManager, oldAccount.balance, specificProperty);
+            newAccount = AccountFactory.createAccount(AccountType.CURRENT, oldAccount.id, oldAccount.idClient, oldAccount.idManager, balance, specificProperty) as CurrentAccount;
         }
         
         accounts[accountIndex] = newAccount;
-        this.writeAccounts(accounts);
+        this.accountAdapter.writeAccounts(accounts);
 
         return newAccount
     }
 
-    updateAccountManagerAndBalance(id: number, balance: number, idManager: number): Account {
-        const accounts = this.readAccounts();
-        const account = accounts.find(account => account.id === Number(id));
-
-        account.balance = balance;
-        account.idManager = idManager;
-        this.writeAccounts(accounts);
-
-        return account
-    }
-
     removeAccount(id: number): void {
-        const accounts = this.readAccounts();
+        const accounts = this.accountAdapter.readAccounts();
         const accountIndex = accounts.findIndex(account => account.id === Number(id));
         accounts.splice(accountIndex, 1);
-        this.writeAccounts(accounts)
+        this.accountAdapter.writeAccounts(accounts)
     }
 }

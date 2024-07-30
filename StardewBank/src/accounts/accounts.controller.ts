@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { Account, AccountType } from './account.model';
-import { SavingAccount } from './savingAccount.model';
+import { Account } from './model/account.model';
+import { SavingAccount } from './model/savingAccount.model';
 import { AccountsService } from './accounts.service';
-import { CurrentAccount } from './currentAccount.model';
+import { CurrentAccount } from './model/currentAccount.model';
+import { AccountType } from './enums/accounts.type';
 
 @Controller('accounts')
 export class AccountsController {
@@ -10,24 +11,19 @@ export class AccountsController {
 
     }
 
-    @Post('/savingAccount')
-    createSavingAccount(@Body('idClient') idClient: number, @Body('idManager')  idManager: number, @Body('balance')  balance: number, @Body('interest')  interest: number): SavingAccount {
-        return this.accountService.createSavingAccount(idClient, idManager,balance, interest);
+    @Get()
+    findAllAccounts(): Account[] {
+        return this.accountService.findAllAccounts();
     }
 
-    @Post('/currentAccount')
-    createCurrentAccount(@Body('idClient') idClient: number, @Body('idManager')  idManager: number, @Body('balance')  balance: number, @Body('limit')  limit: number): CurrentAccount {
-        return this.accountService.createCurrentAccount(idClient, idManager,balance, limit);
+    @Post()
+    createSavingAccount(@Body('idClient') idClient: number, @Body('idManager')  idManager: number, @Body('balance')  balance: number, @Body('type')  type: AccountType, @Body('specificProperty')  specificProperty: number): SavingAccount | CurrentAccount {
+        return this.accountService.createAccount(Number(idClient), Number(idManager),balance, type, specificProperty);
     }
 
     @Patch(':id/updateAccount')
-    updateAccount(@Param('id') id: number, @Body('newType') newType: AccountType, @Body('specificProperty') specificProperty: number): SavingAccount | CurrentAccount {
-        return this.accountService.updateAccountType(id, newType, specificProperty);
-    }
-
-    @Patch(':id/updateManagerBalance')
-    updateManagerAndBalance(@Param('id') id: number, @Body('balance') balance: number, @Body('idManager') idManager: number): Account {
-        return this.accountService.updateAccountManagerAndBalance(id, balance, idManager);
+    updateAccount(@Param('id') id: number, @Body('newType') newType: AccountType, @Body('balance') balance: number,@Body('specificProperty') specificProperty: number): SavingAccount | CurrentAccount {
+        return this.accountService.updateAccount(id, newType, balance, specificProperty);
     }
 
     @Delete(':id')

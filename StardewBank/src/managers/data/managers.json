@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "nome": "Jose",
+    "idAccounts": []
+  },
+  {
+    "id": 2,
+    "name": "dora",
+    "idAccounts": [
+      2
+    ]
+  }
+]

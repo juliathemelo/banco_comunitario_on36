@@ -1,4 +1,5 @@
-import { Account, AccountType } from './account.model';
+import { Account } from "./account.model";
+import { AccountType } from '../enums/accounts.type';
 
 export class SavingAccount extends Account {
 constructor(
