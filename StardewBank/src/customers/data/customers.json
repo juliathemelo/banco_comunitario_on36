@@ -6,11 +6,5 @@
     "accounts": [
       1
     ]
-  },
-  {
-    "id": 2,
-    "name": "juliao",
-    "age": 19,
-    "accounts": []
   }
 ]

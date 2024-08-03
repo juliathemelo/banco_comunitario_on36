@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { ManagersService } from './managers.service';
-import { Manager } from './manager.model';
+import { ManagersService } from './managers.service.js';
+import { Manager } from './model/manager.model.js';
 
 @Controller('managers')
 export class ManagersController {
@@ -8,7 +8,7 @@ export class ManagersController {
 
     }
 
-    @Post('')
+    @Post()
     createManager(@Body('name') name: string, @Body('accountsList')  accountsList: number[]): Manager {
         return this.managerService.createManager(name, accountsList);
     }

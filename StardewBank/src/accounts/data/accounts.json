@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "idClient": 1,
+    "idManager": 3,
+    "type": "current",
+    "balance": 30000,
+    "limit": 1000000
+  },
+  {
+    "id": 2,
+    "idClient": 1,
+    "idManager": 2,
+    "type": "current",
+    "balance": 30000,
+    "limit": 1000000
+  }
+]

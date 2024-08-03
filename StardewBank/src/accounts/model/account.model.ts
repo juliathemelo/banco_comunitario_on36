@@ -1,7 +1,4 @@
-export enum AccountType {
-    SAVING = 'saving',
-    CURRENT = 'current'
-}
+import { AccountType } from "../enums/accounts.type";
 
 export class Account {
     constructor(
