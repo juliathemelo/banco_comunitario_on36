@@ -2,10 +2,7 @@ import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/commo
 import { Account } from './model/account.model';
 import { SavingAccount } from './model/savingAccount.model';
 import { AccountType } from './enums/accounts.type';
-import * as path from 'path';
-import * as fs from 'fs';
 import { CustomersService } from '../customers/customers.service';
-import { ManagersService } from 'src/managers/managers.service';
 import { CurrentAccount } from './model/currentAccount.model';
 import { AccountsAdapter } from './adapter/accounts.adapter';
 import { AccountFactory } from './factory/accounts.factory';
