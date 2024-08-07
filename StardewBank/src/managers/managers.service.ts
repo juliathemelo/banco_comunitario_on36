@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Manager } from './model/manager.model';
-import { AccountsAdapter } from 'src/accounts/adapter/accounts.adapter';
+import { AccountsAdapter } from '../accounts/adapter/accounts.adapter';
 import { ManagerAdapter } from './adapter/managers.adapter';
 import { ManagerFactory } from './factory/managers.factory';
 
