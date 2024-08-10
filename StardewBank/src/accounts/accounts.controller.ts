@@ -16,8 +16,8 @@ export class AccountsController {
         return this.accountService.findAllAccounts();
     }
 
-    @Post()
-    createSavingAccount(@Body('idClient') idClient: number, @Body('idManager')  idManager: number, @Body('balance')  balance: number, @Body('type')  type: AccountType, @Body('specificProperty')  specificProperty: number): SavingAccount | CurrentAccount {
+    @Post(':idManager/')
+    createSavingAccount(@Param('idManager')  idManager: number, @Body('idClient') idClient: number, @Body('balance')  balance: number, @Body('type')  type: AccountType, @Body('specificProperty')  specificProperty: number): SavingAccount | CurrentAccount {
         return this.accountService.createAccount(Number(idClient), Number(idManager),balance, type, specificProperty);
     }
 
