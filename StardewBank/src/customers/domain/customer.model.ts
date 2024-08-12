@@ -3,6 +3,7 @@ export class Customer {
         public id: number,
         public name: string,
         public age: number,
+        public cep: number,
         public accounts: number[]
     ) {}
 }

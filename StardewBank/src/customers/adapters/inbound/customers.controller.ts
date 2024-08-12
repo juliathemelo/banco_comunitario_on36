@@ -9,8 +9,8 @@ export class CustomersController {
     }
 
     @Post()
-    createCustomer(@Body('name') name: string, @Body('age')  age: number): Customer {
-        return this.customerService.createCustomer(name, age);
+    createCustomer(@Body('name') name: string, @Body('age') age: number,@Body('cep')  cep: number): Promise<Customer> {
+        return this.customerService.createCustomer(name, age, cep);
     }
 
     @Get()

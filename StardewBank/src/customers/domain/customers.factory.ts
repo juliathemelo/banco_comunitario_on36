@@ -5,8 +5,9 @@ export class CustomerFactory {
         id: number,
         name: string,
         age: number,
+        cep: number,
         accounts: number[]
     ): Customer {
-        return new Customer(id, name, age, accounts);
+        return new Customer(id, name, age, cep, accounts);
     }
 }
