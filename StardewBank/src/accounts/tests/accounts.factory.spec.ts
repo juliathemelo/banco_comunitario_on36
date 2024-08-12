@@ -1,5 +1,5 @@
-import { AccountFactory } from '../factory/accounts.factory';
-import { AccountType } from '../enums/accounts.type';
+import { AccountFactory } from '../domain/accounts.factory';
+import { AccountType } from '../domain/accounts.type';
 import { SavingAccount } from '../model/savingAccount.model';
 import { CurrentAccount } from '../model/currentAccount.model';
 

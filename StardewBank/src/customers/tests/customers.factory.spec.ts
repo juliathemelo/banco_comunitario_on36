@@ -1,5 +1,5 @@
 import { CustomerFactory } from '../factory/customers.factory';
-import { Customer } from '../model/customer.model';
+import { Customer } from '../domain/customer.model';
 
 describe('CustomerFactory', () => {
     it('should create a new Customer instance', () => {
