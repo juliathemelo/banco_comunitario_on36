@@ -2,7 +2,7 @@ import { Customer } from "../domain/customer.model";
 
 export class CustomerFactory {
     static createCustomer(
-        id: number,
+        id: string,
         name: string,
         age: number,
         cep: number,

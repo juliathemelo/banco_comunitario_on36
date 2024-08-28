@@ -29,7 +29,7 @@ export class AccountsService {
         let newAccount: SavingAccount | CurrentAccount;
 
 
-        if(this.customersService.customerExists(Number(idClient))) {
+        if(true) {
             const newAccountId = this.accountRepository.getNextId(accounts);
 
             if (type === AccountType.SAVING) {
