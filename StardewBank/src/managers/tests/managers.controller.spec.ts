@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ManagersController } from '../managers.controller';
+import { ManagersController } from '../adapters/inbound/managers.controller';
 import { INestApplication } from '@nestjs/common';
 import { ManagersService } from '../managers.service';
 import { AppModule } from '../../app.module';
 import * as supertest from 'supertest';
-import { Manager } from '../model/manager.model';
+import { Manager } from '../domain/manager.model';
 
 describe('ManagersController', () => {
   let controller: ManagersController;

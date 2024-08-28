@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ManagersService } from '../managers.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Manager } from '../model/manager.model';
-import { AccountsAdapter } from '../../accounts/adapter/accounts.adapter';
-import { AccountType } from '../../accounts/enums/accounts.type';
+import { Manager } from '../domain/manager.model';
+import { AccountsAdapter } from '../../accounts/adapters/outbound/accounts.repository';
+import { AccountType } from '../../accounts/domain/accounts.type';
 
 describe('ManagersService', () => {
   let service: ManagersService;

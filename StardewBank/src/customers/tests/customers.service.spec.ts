@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomersService } from '../customers.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Customer } from '../model/customer.model';
+import { Customer } from '../domain/customer.model';
 
 
 describe('CustomersService', () => {

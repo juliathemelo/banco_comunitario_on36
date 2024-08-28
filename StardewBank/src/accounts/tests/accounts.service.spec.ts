@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AccountsService } from '../accounts.service';
+import { AccountsService } from '../application/accounts.service';
 import { CustomersService } from '../../customers/customers.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { AccountType } from '../enums/accounts.type';
-import { AccountsAdapter } from '../adapter/accounts.adapter';
+import { AccountType } from '../domain/accounts.type';
+import { AccountsAdapter } from '../adapters/outbound/accounts.repository';
 import { SavingAccount } from '../model/savingAccount.model';
 import { CurrentAccount } from '../model/currentAccount.model';
 
