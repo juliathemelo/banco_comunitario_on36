@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomerEntity } from './customers/entities/customers.entities';
+import { ManagerEntity } from './managers/entities/managers.entity';
 import { CustomersModule } from './customers/customers.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { ManagersModule } from './managers/managers.module';
@@ -16,7 +17,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     username: "postgres.zenexzvpsyteulqnakzk",
     password: "mv8hwKqfa6G5yrot",
     database: "postgres",
-    entities: [CustomerEntity], // suas entidades aqui
+    entities: [CustomerEntity, ManagerEntity],
     synchronize: true,
     logging: true,
   }),CustomersModule, AccountsModule, ManagersModule, TransactionsModule],
