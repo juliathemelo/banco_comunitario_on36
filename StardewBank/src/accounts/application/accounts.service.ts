@@ -1,76 +1,70 @@
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, NotFoundException} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Account } from '../domain/account.model';
 import { SavingAccount } from '../domain/savingAccount.model';
 import { AccountType } from '../domain/accounts.type';
 import { CustomersService } from '../../customers/application/customers.service';
+import { CreateAccountDto } from '../dto/create-account.dto';
+import { UpdateAccountDto } from '../dto/update-account.dto';
 import { CurrentAccount } from '../domain/currentAccount.model';
 import { AccountsRepository } from '../adapters/outbound/accounts.repository';
 import { AccountFactory } from '../domain/accounts.factory';
+import { AccountEntity } from '../entities/account.entity';
 
 @Injectable()
 export class AccountsService {
 
-    private accountRepository: AccountsRepository;
+    constructor(
+        @InjectRepository(AccountEntity)
+        private readonly accountsRepository: Repository<AccountEntity>,
+        private readonly customersService: CustomersService
+    ) {}
 
-    constructor(private readonly customersService: CustomersService) {
-        this.accountRepository = new AccountsRepository();
-    }
-
-    //Consultar Clientes no geral
-    findAllAccounts(): Account[] {
-        const accounts = this.accountRepository.readAccounts();
-        return accounts;
+    //Consultar Contas no geral
+    async findAllAccounts(): Promise<AccountEntity[]> {
+        return await this.accountsRepository.find();
     }
 
     //Criação conta
-    createAccount(idClient: number, idManager: number, balance: number, type: AccountType, specificProperty: number): SavingAccount | CurrentAccount {
-        const accounts = this.accountRepository.readAccounts();
+    async createAccount(createAccountDto: CreateAccountDto): Promise<AccountEntity> {
 
-        let newAccount: SavingAccount | CurrentAccount;
+        let newAccount;
 
-
-        if(true) {
-            const newAccountId = this.accountRepository.getNextId(accounts);
-
-            if (type === AccountType.SAVING) {
-                newAccount = AccountFactory.createAccount(AccountType.SAVING, newAccountId, idClient, idManager, balance, specificProperty) as SavingAccount;
-            } else if (type === AccountType.CURRENT) {
-                newAccount = AccountFactory.createAccount(AccountType.CURRENT, newAccountId, idClient, idManager, balance, specificProperty) as CurrentAccount;
-            }
-
-            accounts.push(newAccount);
-            this.accountRepository.writeAccounts(accounts);
+        if(this.customersService.customerExists(createAccountDto.idClient.id)) {
+            newAccount = this.accountsRepository.create(createAccountDto);
+            await this.accountsRepository.save(newAccount);
         } else {
-            throw new NotFoundException(`Cliente com o ${idClient} não existe`);
+            throw new NotFoundException(`Cliente com o ${createAccountDto.idClient} não existe`);
         }
 
         return newAccount
     }
 
     //atualização tipo de conta
-    updateAccount(id: number, newType: AccountType, balance: number,specificProperty: number): SavingAccount | CurrentAccount {
-        const accounts = this.accountRepository.readAccounts();
-        const accountIndex = accounts.findIndex(account => account.id === Number(id));
+    async updateAccount(id: string, updateAccountDto: UpdateAccountDto): Promise<AccountEntity> {
 
-        const oldAccount = accounts[accountIndex];
-        let newAccount: SavingAccount | CurrentAccount;
-
-        if (newType === AccountType.SAVING) {
-            newAccount = AccountFactory.createAccount(AccountType.SAVING, oldAccount.id, oldAccount.idClient, oldAccount.idManager, balance, specificProperty) as SavingAccount;
-        } else if (newType === AccountType.CURRENT) {
-            newAccount = AccountFactory.createAccount(AccountType.CURRENT, oldAccount.id, oldAccount.idClient, oldAccount.idManager, balance, specificProperty) as CurrentAccount;
+        const accounts = await this.accountsRepository.findOne({ where: { id } });
+        if (!accounts) {
+          throw new NotFoundException(`Customer with ID ${id} not found`);
         }
         
-        accounts[accountIndex] = newAccount;
-        this.accountRepository.writeAccounts(accounts);
+        accounts.balance = updateAccountDto.balance;
+        if(updateAccountDto.accountType === AccountType.SAVING){
+            accounts.interest = updateAccountDto.interest;
+        } if(updateAccountDto.accountType === AccountType.CURRENT) {
+            accounts.limit = updateAccountDto.limit;
+        } else {
+            throw new NotFoundException(`Account type não existe`);
+        }
+        
+        await this.accountsRepository.save(accounts);
 
-        return newAccount
+        return accounts
     }
 
-    removeAccount(id: number): void {
-        const accounts = this.accountRepository.readAccounts();
-        const accountIndex = accounts.findIndex(account => account.id === Number(id));
-        accounts.splice(accountIndex, 1);
-        this.accountRepository.writeAccounts(accounts)
+    async removeAccount(id: string): Promise<void> {
+        const account = await this.accountsRepository.findOne({ where: { id } });
+        await this.accountsRepository.remove(account)
     }
 }

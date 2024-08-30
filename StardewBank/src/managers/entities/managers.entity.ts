@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { AccountEntity } from 'src/accounts/entities/account.entity';
+import { Column, Entity, PrimaryGeneratedColumn,OneToMany } from 'typeorm';
 
 @Entity()
 export class ManagerEntity {
@@ -9,6 +10,6 @@ export class ManagerEntity {
     @Column()
     name: string;
 
-    @Column('simple-array', { nullable: true })
-    idAccounts: number[];
+    @OneToMany(() => AccountEntity, account => account.idManager)
+    idAccounts: AccountEntity[];
 }

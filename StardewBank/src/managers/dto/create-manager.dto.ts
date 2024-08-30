@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { AccountEntity } from '../../accounts/entities/account.entity';
 
 export class CreateManagerDto {
     @IsNotEmpty()
@@ -9,5 +10,5 @@ export class CreateManagerDto {
     name: string;
 
 
-    idAccounts: number[];
+    idAccounts: AccountEntity[];
 }

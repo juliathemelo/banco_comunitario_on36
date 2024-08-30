@@ -7,6 +7,7 @@ import { ManagerEntity } from './managers/entities/managers.entity';
 import { CustomersModule } from './customers/customers.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { ManagersModule } from './managers/managers.module';
+import { AccountEntity } from './accounts/entities/account.entity';
 import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
@@ -17,7 +18,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     username: "postgres.zenexzvpsyteulqnakzk",
     password: "mv8hwKqfa6G5yrot",
     database: "postgres",
-    entities: [CustomerEntity, ManagerEntity],
+    entities: [CustomerEntity, ManagerEntity, AccountEntity],
     synchronize: true,
     logging: true,
   }),CustomersModule, AccountsModule, ManagersModule, TransactionsModule],

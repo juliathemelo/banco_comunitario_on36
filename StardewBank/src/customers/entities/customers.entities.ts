@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { AccountEntity } from '../../accounts/entities/account.entity';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class CustomerEntity {
@@ -15,6 +16,6 @@ export class CustomerEntity {
     @Column()
     cep: number;
 
-    @Column('simple-array', { nullable: true })
-    accounts: number[];
+    @OneToMany(() => AccountEntity, account => account.idClient)
+    accounts: AccountEntity[];
 }

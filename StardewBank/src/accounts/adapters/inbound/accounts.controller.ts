@@ -2,8 +2,10 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { Account } from 'src/accounts/domain/account.model';
 import { SavingAccount } from 'src/accounts/domain/savingAccount.model';
 import { AccountsService } from 'src/accounts/application/accounts.service';
-import { CurrentAccount } from 'src/accounts/domain/currentAccount.model';
+import { AccountEntity } from 'src/accounts/entities/account.entity';
 import { AccountType } from 'src/accounts/domain/accounts.type';
+import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { UpdateAccountDto } from 'src/accounts/dto/update-account.dto';
 
 @Controller('accounts')
 export class AccountsController {
@@ -12,22 +14,22 @@ export class AccountsController {
     }
 
     @Get()
-    findAllAccounts(): Account[] {
+    findAllAccounts(): Promise<AccountEntity[]> {
         return this.accountService.findAllAccounts();
     }
 
     @Post(':idManager/')
-    createSavingAccount(@Param('idManager')  idManager: number, @Body('idClient') idClient: number, @Body('balance')  balance: number, @Body('type')  type: AccountType, @Body('specificProperty')  specificProperty: number): SavingAccount | CurrentAccount {
-        return this.accountService.createAccount(Number(idClient), Number(idManager),balance, type, specificProperty);
+    createSavingAccount(@Param('idManager') idManager: string, @Body() createAccountDto: CreateAccountDto): Promise<AccountEntity> {
+        return this.accountService.createAccount(createAccountDto);
     }
 
     @Patch(':id/updateAccount')
-    updateAccount(@Param('id') id: number, @Body('newType') newType: AccountType, @Body('balance') balance: number,@Body('specificProperty') specificProperty: number): SavingAccount | CurrentAccount {
-        return this.accountService.updateAccount(id, newType, balance, specificProperty);
+    updateAccount(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto): Promise<AccountEntity> {
+        return this.accountService.updateAccount(id, updateAccountDto);
     }
 
     @Delete(':id')
-    deleteAccount(@Param('id') id: number): void {
+    deleteAccount(@Param('id') id: string): Promise<void> {
         return this.accountService.removeAccount(id);
     }
 }
