@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CustomersService } from '../customers.service';
+import { CustomersService } from '../application/customers.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Customer } from '../domain/customer.model';

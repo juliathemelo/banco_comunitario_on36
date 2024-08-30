@@ -1,46 +1,73 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Customer } from '../domain/customer.model';
-import { CustomersRepository } from '../adapters/outbound/customers.repository';
-import { CustomerFactory } from '../domain/customers.factory';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CustomerEntity } from '../entities/customers.entities';
+import { UpdateCustomerDto } from '../dto/update-customer.dto';
+import { UtilsAdapter } from '../../utils/utils.adapter';
+import { CreateCustomerDto } from '../dto/create-customer.dto';
 
 
 @Injectable()
 export class CustomersService {
 
-    private readonly customersRepository = new CustomersRepository();
+    constructor(
+        @InjectRepository(CustomerEntity)
+        private readonly customersRepository: Repository<CustomerEntity>,
+    ) {}
+
+    private utilsAdapter = new UtilsAdapter()
 
     //Criação cliente
-    async createCustomer(name: string, age: number, cep: number): Promise<Customer> {
+    async createCustomer(createCustomerDto: CreateCustomerDto): Promise<CustomerEntity> {
+        const statue = this.utilsAdapter.getEstadoByCep(Number(createCustomerDto.cep))
+        let newCustomer;
 
-        const customers = this.customersRepository.readCustomers();
-        const newId = customers.length > 0 ? customers[customers.length - 1].id + 1 : 1;
-
-        let newCustomer: Customer
-        
-        const statue = this.customersRepository.getEstadoByCep(cep)
-
-        //depois vou arrumar em um arquivo com todas as ufs
-        const allowedStates = ['PE', 'BA', 'SP'];
-
-        //verificação com a chamada a api externa
-        if (allowedStates.includes((await statue))) {
-            const newCustomer = CustomerFactory.createCustomer(newId, name, age, cep, []);
-            customers.push(newCustomer);
-            this.customersRepository.writeCustomers(customers);
+        if (this.utilsAdapter.allowedStates.includes((await statue))) {
+            newCustomer = this.customersRepository.create(createCustomerDto);
+            await this.customersRepository.save(newCustomer);
         } else {
-            throw new NotFoundException(`Cep: ${cep} não pertence a região brasileira`);
+            throw new NotFoundException(`Cep: ${createCustomerDto.cep} não pertence a região brasileira`);
         }
 
         return newCustomer;
     }
 
-    findAllCustomers(): Customer[] {
-        const customers = this.customersRepository.readCustomers();
-        return customers;
+    async findAllCustomers(): Promise<CustomerEntity[]> {
+        return await this.customersRepository.find();
     }
 
-    customerExists(id: number): boolean {
-        const customers = this.customersRepository.readCustomers();
-        return customers.some(customer => customer.id === id);
+    async updateCustomer(id: string, updateCustomerDto: UpdateCustomerDto): Promise<CustomerEntity> {
+   
+        const customer = await this.customersRepository.findOne({ where: { id } });
+        if (!customer) {
+          throw new NotFoundException(`Customer with ID ${id} not found`);
+        }
+
+        const statue = this.utilsAdapter.getEstadoByCep(Number(updateCustomerDto.cep))
+        if (this.utilsAdapter.allowedStates.includes((await statue))) {
+            customer.name = updateCustomerDto.name;
+            customer.age = updateCustomerDto.age;
+            customer.cep = updateCustomerDto.cep;
+            await this.customersRepository.save(customer);
+        } else {
+            throw new NotFoundException(`Cep: ${updateCustomerDto.cep} não pertence a região brasileira`);
+        }
+    
+    
+        // Salva as alterações no banco de dados
+        return customer
+      }
+
+    async customerExists(id: string): Promise<boolean> {
+        const customer = await this.customersRepository.findOne({ where: { id } });
+        let existCustomer = false
+
+        if (!customer) {
+            throw new Error(`Customer with id ${id} not found`);
+        } else {
+            existCustomer = true
+        }
+
+        return existCustomer
     }
 }

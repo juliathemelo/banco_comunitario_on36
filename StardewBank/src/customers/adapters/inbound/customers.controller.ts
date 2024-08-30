@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Customer } from 'src/customers/domain/customer.model';
-import { CustomersService } from 'src/customers/application/customers.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { CustomersService } from '../../application/customers.service';
+import { CustomerEntity } from '../../entities/customers.entities';
+import { CreateCustomerDto } from '../../dto/create-customer.dto';
+import { UpdateCustomerDto } from 'src/customers/dto/update-customer.dto';
 
 @Controller('customers')
 export class CustomersController {
@@ -9,12 +11,17 @@ export class CustomersController {
     }
 
     @Post()
-    createCustomer(@Body('name') name: string, @Body('age') age: number,@Body('cep')  cep: number): Promise<Customer> {
-        return this.customerService.createCustomer(name, age, cep);
+    createCustomer(@Body() createCustomerDto: CreateCustomerDto): Promise<CustomerEntity> {
+        return this.customerService.createCustomer(createCustomerDto);
     }
 
     @Get()
-    findAllCustomers(): Customer[] {
+    findAllCustomers(): Promise<CustomerEntity[]> {
         return this.customerService.findAllCustomers();
+    }
+
+    @Patch(':id/updateCustomer')
+    updateCustomer(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto,): Promise<CustomerEntity> {
+        return this.customerService.updateCustomer(id, updateCustomerDto);
     }
 }
